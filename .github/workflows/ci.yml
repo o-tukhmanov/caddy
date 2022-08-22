@@ -1,11 +1,11 @@
 # Used as inspiration: https://github.com/mvdan/github-actions-golang
 
-name: Tests
+name: CI flow
 
 on: push
 
 jobs:
-  test:
+  ci-flow:
     env:
       HOME: /root/actions-runner/_work/
       GOMODCACHE: /root/actions-runner/_work/go/pkg/mod
@@ -124,17 +124,3 @@ jobs:
     #   run: |
     #     echo "step_test ${{ steps.step_test.outputs.status }}\n"
     #     exit 1
-
-
-  goreleaser-check:
-    runs-on: linux-runner
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      
-      - uses: goreleaser/goreleaser-action@v2
-        with:
-          version: latest
-          args: check
-        env:
-          TAG: ${{ steps.vars.outputs.version_tag }}
