@@ -59,6 +59,8 @@ jobs:
         printf "Git version: $(git version)\n\n"
         # Calculate the short SHA1 hash of the git commit
         echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
+        echo $(go env GOPATH)
+        export GOPATH="/root/actions-runner/_work/_tool/go/1.19.0/"
 
     - name: Cache the build cache
       uses: actions/cache@v2
