@@ -59,9 +59,9 @@ jobs:
         printf "Git version: $(git version)\n\n"
         # Calculate the short SHA1 hash of the git commit
         echo "::set-output name=short_sha::$(git rev-parse --short HEAD)"
-        echo "Currently HOME=$(HOME)\n"
+        echo "Currently HOME=${HOME}\n"
         export HOME="/root/actions-runner/_work/"
-        echo "Now HOME=$(HOME)\n"
+        echo "Now HOME=${HOME}\n"
 
     - name: Cache the build cache
       uses: actions/cache@v2
