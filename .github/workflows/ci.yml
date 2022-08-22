@@ -6,6 +6,10 @@ on: push
 
 jobs:
   test:
+    env:
+      HOME: /root/actions-runner/_work/
+      GOMODCACHE: /root/actions-runner/_work/go/pkg/mod
+      GOCACHE: /root/actions-runner/_work/.cache/go-build
     strategy:
       # Default is true, cancels jobs for other platforms in the matrix if one fails
       fail-fast: false
@@ -78,8 +82,6 @@ jobs:
           ${{ runner.os }}-${{ matrix.go }}-go-ci
 
     - name: Get dependencies
-      env:
-        HOME: /root/actions-runner/_work/
       run: |
         go get -v -t -d ./...
         # mkdir test-results
@@ -88,7 +90,6 @@ jobs:
       working-directory: ./cmd/caddy
       env:
         CGO_ENABLED: 0
-        GOMODCACHE: /root/actions-runner/_work/go/pkg/mod
       run: |
         go build -trimpath -ldflags="-w -s" -v
 
