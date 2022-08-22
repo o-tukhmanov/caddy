@@ -78,9 +78,9 @@ jobs:
           ${{ runner.os }}-${{ matrix.go }}-go-ci
 
     - name: Get dependencies
+      env:
+        HOME: /root/actions-runner/_work/
       run: |
-        export HOME="/root/actions-runner/_work/"
-        printf "Currently HOME=${HOME}\n"
         go get -v -t -d ./...
         # mkdir test-results
 
@@ -88,6 +88,7 @@ jobs:
       working-directory: ./cmd/caddy
       env:
         CGO_ENABLED: 0
+        GOMODCACHE: /root/actions-runner/_work/go/pkg/mod
       run: |
         go build -trimpath -ldflags="-w -s" -v
 
