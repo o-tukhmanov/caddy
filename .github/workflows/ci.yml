@@ -8,7 +8,6 @@ jobs:
   ci-flow:
     env:
       HOME: /root/actions-runner/_work/
-      PATH: /opt/Fortify/Fortify_SCA_and_Apps_22.1.1/bin:$PATH
       GOMODCACHE: /root/actions-runner/_work/go/pkg/mod
       GOCACHE: /root/actions-runner/_work/.cache/go-build
     strategy:
@@ -55,7 +54,7 @@ jobs:
     - name: Print Go version and environment
       id: vars
       run: |
-        sourceanalyzer -h
+        printf "PATH is ${PATH}\n"
         printf "Using go at: $(which go)\n"
         printf "Go version: $(go version)\n"
         printf "\n\nGo environment:\n\n"
