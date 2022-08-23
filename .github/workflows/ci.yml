@@ -34,7 +34,7 @@ jobs:
         - SSC_URL: https://dc.sca.local:8443/ssc
         - FPR_FILE: Fortifycaddy.fpr
         - APP_NAME: Caddy
-        - APP_VER: 1.0
+        - APP_VER: "1.0"
         - BUILD_ID: caddy
 
     runs-on: ${{ matrix.os }}
