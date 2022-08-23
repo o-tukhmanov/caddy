@@ -29,6 +29,13 @@ jobs:
         - os: linux-runner
           CADDY_BIN_PATH: ./cmd/caddy/caddy
           SUCCESS: 0
+          
+        - APP_TOKEN: 48ade8b4-f55d-4578-a3c1-43e47b211e2b
+        - SSC_URL: https://dc.sca.local:8443/ssc
+        - FPR_FILE: Fortifycaddy.fpr
+        - APP_NAME: Caddy
+        - APP_VER: 1.0
+        - BUILD_ID: caddy
 
     runs-on: ${{ matrix.os }}
 
@@ -116,12 +123,18 @@ jobs:
       env:
         CGO_ENABLED: 0
       run: |
+        # making sourceanalyzer available
         export PATH=/opt/Fortify/Fortify_SCA_and_Apps_22.1.1/bin:$PATH
-        sourceanalyzer -b caddy -clean
-        sourceanalyzer -b caddy .
-        sourceanalyzer -b caddy touchless go build -trimpath -ldflags="-w -s" -v
-        sourceanalyzer -Xmx14296M -Xms400M -Xss24M -b caddy -scan -f Fortifycaddy.fpr
-        fortifyclient -url https://dc.sca.local:8443/ssc -authtoken 48ade8b4-f55d-4578-a3c1-43e47b211e2b uploadFPR -file Fortifycaddy.fpr -application "Caddy" -applicationVersion "1.0"
+        # clean phase
+        sourceanalyzer -b ${{ matrix.BUILD_ID }} -clean
+        # translation phase
+        sourceanalyzer -b ${{ matrix.BUILD_ID }} .
+        # build phase
+        sourceanalyzer -b ${{ matrix.BUILD_ID }} touchless go build -trimpath -ldflags="-w -s" -v 
+        # scan phase
+        sourceanalyzer -Xmx14296M -Xms400M -Xss24M -b ${{ matrix.BUILD_ID }} -scan -f ${{ matrix.FPR_FILE }}
+        # upload to ssc
+        fortifyclient -url ${{ matrix.SSC_URL }} -authtoken ${{ matrix.APP_TOKEN }} uploadFPR -file ${{ matrix.FPR_FILE }} -application ${{ matrix.APP_NAME }} -applicationVersion ${{ matrix.APP_VER }}
 
 
     # Relevant step if we reinvestigate publishing test/coverage reports
