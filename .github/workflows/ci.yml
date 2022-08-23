@@ -94,17 +94,6 @@ jobs:
       run: |
         go build -trimpath -ldflags="-w -s" -v
 
-    - name: Scan with Fortify
-      working-directory: ./cmd/caddy
-      env:
-        CGO_ENABLED: 0
-      run: |
-        export PATH=/opt/Fortify/Fortify_SCA_and_Apps_22.1.1/bin:$PATH
-        sourceanalyzer -b caddy -clean
-        sourceanalyzer -b caddy touchless go build -trimpath -ldflags="-w -s" -v
-        sourceanalyzer -Xmx14296M -Xms400M -Xss24M -b caddy -scan -f Fortifycaddy.fpr
-        fortifyclient -url https://dc.sca.local:8443/ssc -authtoken 48ade8b4-f55d-4578-a3c1-43e47b211e2b uploadFPR -file Fortifycaddy.fpr -application "Caddy" -applicationVersion "1.0"
-
     - name: Publish Build Artifact
       uses: actions/upload-artifact@v1
       with:
@@ -121,6 +110,19 @@ jobs:
         # (go test -v -coverprofile=cover-profile.out -race ./... 2>&1) > test-results/test-result.out
         go test -v -coverprofile="cover-profile.out" -short -race ./...
         # echo "::set-output name=status::$?"
+
+    - name: Scan with Fortify
+      working-directory: ./cmd/caddy
+      env:
+        CGO_ENABLED: 0
+      run: |
+        export PATH=/opt/Fortify/Fortify_SCA_and_Apps_22.1.1/bin:$PATH
+        sourceanalyzer -b caddy -clean
+        sourceanalyzer -b caddy .
+        sourceanalyzer -b caddy touchless go build -trimpath -ldflags="-w -s" -v
+        sourceanalyzer -Xmx14296M -Xms400M -Xss24M -b caddy -scan -f Fortifycaddy.fpr
+        fortifyclient -url https://dc.sca.local:8443/ssc -authtoken 48ade8b4-f55d-4578-a3c1-43e47b211e2b uploadFPR -file Fortifycaddy.fpr -application "Caddy" -applicationVersion "1.0"
+
 
     # Relevant step if we reinvestigate publishing test/coverage reports
     # - name: Prepare coverage reports
