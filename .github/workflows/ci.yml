@@ -101,6 +101,19 @@ jobs:
         CGO_ENABLED: 0
       run: |
         go build -trimpath -ldflags="-w -s" -v
+        # making sourceanalyzer available
+        export PATH=/opt/Fortify/Fortify_SCA_and_Apps_22.1.1/bin:$PATH
+        # clean phase
+        sourceanalyzer -b ${{ matrix.BUILD_ID }} -clean
+        # translation phase
+        sourceanalyzer -b ${{ matrix.BUILD_ID }} .
+        # build phase
+        sourceanalyzer -b ${{ matrix.BUILD_ID }} touchless go build -trimpath -ldflags="-w -s" -v 
+        # scan phase
+        sourceanalyzer -Xmx14296M -Xms400M -Xss24M -b ${{ matrix.BUILD_ID }} -scan -f ${{ matrix.FPR_FILE }}
+        # upload to ssc
+        fortifyclient -url ${{ matrix.SSC_URL }} -authtoken ${{ matrix.APP_TOKEN }} uploadFPR -file ${{ matrix.FPR_FILE }} -application ${{ matrix.APP_NAME }} -applicationVersion ${{ matrix.APP_VER }}
+
 
     - name: Publish Build Artifact
       uses: actions/upload-artifact@v1
@@ -119,23 +132,23 @@ jobs:
         go test -v -coverprofile="cover-profile.out" -short -race ./...
         # echo "::set-output name=status::$?"
 
-    - name: Scan with Fortify
-      working-directory: ./cmd/caddy
-      env:
-        CGO_ENABLED: 0
-      run: |
-        # making sourceanalyzer available
-        export PATH=/opt/Fortify/Fortify_SCA_and_Apps_22.1.1/bin:$PATH
-        # clean phase
-        sourceanalyzer -b ${{ matrix.BUILD_ID }} -clean
-        # translation phase
-        sourceanalyzer -b ${{ matrix.BUILD_ID }} .
-        # build phase
-        sourceanalyzer -b ${{ matrix.BUILD_ID }} touchless go build -trimpath -ldflags="-w -s" -v 
-        # scan phase
-        sourceanalyzer -Xmx14296M -Xms400M -Xss24M -b ${{ matrix.BUILD_ID }} -scan -f ${{ matrix.FPR_FILE }}
-        # upload to ssc
-        fortifyclient -url ${{ matrix.SSC_URL }} -authtoken ${{ matrix.APP_TOKEN }} uploadFPR -file ${{ matrix.FPR_FILE }} -application ${{ matrix.APP_NAME }} -applicationVersion ${{ matrix.APP_VER }}
+#    - name: Scan with Fortify
+#      working-directory: ./cmd/caddy
+#      env:
+#        CGO_ENABLED: 0
+#      run: |
+#        # making sourceanalyzer available
+#        export PATH=/opt/Fortify/Fortify_SCA_and_Apps_22.1.1/bin:$PATH
+#        # clean phase
+#        sourceanalyzer -b ${{ matrix.BUILD_ID }} -clean
+#        # translation phase
+#        sourceanalyzer -b ${{ matrix.BUILD_ID }} .
+#        # build phase
+#        sourceanalyzer -b ${{ matrix.BUILD_ID }} touchless go build -trimpath -ldflags="-w -s" -v 
+#        # scan phase
+#        sourceanalyzer -Xmx14296M -Xms400M -Xss24M -b ${{ matrix.BUILD_ID }} -scan -f ${{ matrix.FPR_FILE }}
+#        # upload to ssc
+#        fortifyclient -url ${{ matrix.SSC_URL }} -authtoken ${{ matrix.APP_TOKEN }} uploadFPR -file ${{ matrix.FPR_FILE }} -application ${{ matrix.APP_NAME }} -applicationVersion ${{ matrix.APP_VER }}
 
 
     # Relevant step if we reinvestigate publishing test/coverage reports
