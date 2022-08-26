@@ -119,7 +119,7 @@ jobs:
         # echo "::set-output name=status::$?"
 
     - name: Scan with Fortify
-      working-directory: ./cmd/caddy
+      working-directory: /root/actions-runner/_work/caddy/caddy
       env:
         CGO_ENABLED: 0
       run: |
