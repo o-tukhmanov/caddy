@@ -126,7 +126,7 @@ jobs:
         # making sourceanalyzer available
         export PATH=/opt/Fortify/Fortify_SCA_and_Apps_22.1.1/bin:$PATH
         # clean phase
-        sourceanalyzer -b -clean
+        sourceanalyzer -clean
         # translation phase
         sourceanalyzer -b ${{ matrix.BUILD_ID }} .
         # build phase
